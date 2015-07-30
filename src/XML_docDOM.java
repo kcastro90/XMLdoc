@@ -11,7 +11,7 @@ import java.net.URL;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;*/
 
-public class XML_docDOM
+public class XML_docDOM2
 {
     public static void main(String[] args) throws Exception
     {
@@ -24,7 +24,7 @@ public class XML_docDOM
 
             //BufferedReader reads from given URL
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(requestPG.getInputStream()));
-            //String line;
+
 
 
             //Create a file, BufferedWriter and FileWriter to write to file
@@ -33,14 +33,16 @@ public class XML_docDOM
             BufferedWriter out  = new BufferedWriter(write2file);
 
             //Read lines from website
-            while ((bufferedReader.readLine()) != null)
+            String theLine;
+
+            while ((theLine = bufferedReader.readLine()) != null)
             {
-                out.write(bufferedReader.readLine());
-                //out.newLine();
+                out.write(theLine);
+                out.newLine();
             }
             out.close();
-        }
-        catch (IOException e)
+
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
