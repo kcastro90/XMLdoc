@@ -18,14 +18,13 @@ public class XMLqueryParser {
 					DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse("http://forecast.weather.gov/MapClick.php?lat=42.0418&lon=-70.6723&unit=0&lg=english&FcstType=dwml");
+			Element root = doc.getDocumentElement();
 			
-			NodeList list = doc.getElementsByTagName("weather");
-			System.out.println("There are " + list.getLength() + " items");
-			
-			for (int i = 0; i < list.getLength(); i++)
-			{
-				Element item = (Element)list.item(i);
-				System.out.println(item.getFirstChild().getNodeValue());
+			NodeList conditions =
+					root.getElementsByTagName("weather-conditions");
+					for(int i=0; i<14; i++) {
+					Element condition = (Element)conditions.item(i);
+					System.out.printf("Condition: %s%n", condition.getAttribute("weather-summary"));
 			}
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			// TODO Auto-generated catch block
