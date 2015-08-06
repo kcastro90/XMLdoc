@@ -57,7 +57,8 @@ public class XMLqueryParser
 			NodeList conditions = root.getElementsByTagName("weather-conditions");
 			// This output will be a week's worth of weather conditions for every 12 hours.
 										
-			for(int i=0; i<14; i++) //conditions.getLength() This information so far ahead isn't really needed.
+			for(int i=0; i<2; i++) /*conditions.getLength() would take all the 
+			available info, but I am only interested in the next 3 days; :. 6 12 hrs */
 			{
 				Element condition = (Element)conditions.item(i); // The 2 last "weather-conditions" are irrelevant
 				System.out.printf("Condition " + (i+1) + ": %s%n", condition.getAttribute("weather-summary"));
@@ -65,10 +66,16 @@ public class XMLqueryParser
 			}
 			//System.out.println(weather);
 			
-			//for(int index=0; index<wetConditions.length; index++)
-			//{
-			//if((weather[0] != wetCondition[index]) && (weather[1] != wetCondition[index]))
-			//}
+			boolean rain = false;
+			//String index0 = weather[0];
+			for(String statement : wetConditions)
+			{
+			if(weather.equals(statement))
+				//System.out.println(weather.equals(statement));
+				rain = true;
+				System.out.println("It will rain sometime in the next week");
+				break;
+			}
 					
 		} 
 		catch (ParserConfigurationException | SAXException | IOException e) 
