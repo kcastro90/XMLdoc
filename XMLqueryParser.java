@@ -74,7 +74,7 @@ public class XMLqueryParser
 				//System.out.println(weather.equals(statement));
 				rain = true;
 				System.out.println("It will rain sometime in the next week");
-				break;
+				//break;
 			}
 					
 		} 
