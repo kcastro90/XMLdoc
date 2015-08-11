@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -17,24 +18,25 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
-public class XMLqueryParser 
+public class queryParser 
 {
 	public static void main(String[] args) 
 	{
 		//Change hour, minutes, second here
 		Calendar today = Calendar.getInstance();
-		today.set(Calendar.HOUR_OF_DAY, 13);
-		today.set(Calendar.MINUTE, 29);
+		today.set(Calendar.HOUR_OF_DAY, 3);
+		today.set(Calendar.MINUTE, 0);
 		today.set(Calendar.SECOND, 0);
 		// Every night at 3am run task
+		java.util.Date targetDate = today.getTime();
 		Timer timer = new Timer();
-		timer.schedule(new GetForecastDecision(), today.getTimeInMillis(), TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));	
+		timer.schedule(new GetForecastDecision(), targetDate, TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));	
 	}
 }
 
 class GetForecastDecision extends TimerTask
 {
-	public static void run(String[] args) 
+	public void run() 
 	{
 		ArrayList<String> weather = new ArrayList<String>();  // This will take the next 7 days' weather condition as an array.
 		// The following are the possible "wet conditions" that will tell if the sprinkler should or no go on.
@@ -91,11 +93,10 @@ class GetForecastDecision extends TimerTask
 				boolean rain = false;
 				if ((Collections.disjoint(weather, Arrays.asList(wetConditions)) == false))	//(weather.equals(statement))
 				{	
-						rain = true;
+					rain = true;
 				}	
 				ResultingRespose(rain);
-			} 
-			
+			} 			
 			catch (ParserConfigurationException | SAXException | IOException e) 
 			{
 				// TODO Auto-generated catch block
@@ -103,21 +104,57 @@ class GetForecastDecision extends TimerTask
 			}
 		}
 
-		private static void ResultingRespose(boolean rain) {
-			if (rain == false)
+		private static void ResultingRespose(boolean today) 
+		{
+			CheckRainHistory rainresult = new CheckRainHistory();
+			Boolean [] rainarray = rainresult.getHistory();
+			//Gets the array values that exist in history
+			Boolean yesterday = rainarray[0];			
+			if (yesterday == false && today == false)
 			{
-				System.out.println("The sprinkler will not turn for the next 24 hours");
-			}
-			else
+				System.out.println("No rain for two consecutive days. The sprinkler will now turn on.");
+			}	
+			if (yesterday == true && today == false)
 			{
-				System.out.println("The sprinkler system will now come on.");
+				System.out.println("The sprinkler system does not need to come on since it rained yesterday.");
 			}
+			if (yesterday == false && today == true)
+			{
+				System.out.println("The sprinkler system will not come on, it will rain today.");
+			}
+			else // true && true, rain in both days
+			{
+				System.out.println("The sprinkler system will not come on.");
+			}
+			// The first index will hold yesterday's Boolean answer
+			// Update the arrays truth values
+			rainresult.setRainArray(today);
 		}
 
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
+public class CheckRainHistory
+{
+	/* Values will be realized to false since it the first run, there is no way of knowing
+			 * if there was any rain on the day prior to the first run. */
+	public Boolean [] rainHistory = {false, false}; 
 			
-		}
+	private void setRainArray(Boolean result)
+	{
+		Boolean copyresult = rainHistory[0]; 
+		/* Copy the second value which is today's result, 
+		and pass to yesterday's spot so the next round will 
+		have the result it is looking for/"yesterday" */
+		rainHistory[1] = copyresult; // Today is now yesterday
+		rainHistory[0] = result; 
+		/* New value is now inserted and will be used
+		* the next time that GetForecastDecision runs*/	
 	}
+	public Boolean[] getHistory()
+	{	
+		return rainHistory;				
+	}
+			
+}
+}
+
+
 	 
