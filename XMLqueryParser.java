@@ -1,5 +1,8 @@
 import java.io.IOException;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,10 +13,44 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
+
 
 public class XMLqueryParser 
 {
 	public static void main(String[] args) 
+	{
+		// ONE SECOND = 1000, one minute = 1000*60, one hr = 1000*60*60, one day = 1000*60*60*24
+		//
+		int second = 3000;
+		int minute = 3000*30;
+		Timer timer = new Timer(second, new MyTimerActionListener());
+
+	    timer.start();
+	    try 
+	    {
+	    	
+	    	Thread.sleep(minute);
+		} 
+	    catch (InterruptedException e) {}
+		    timer.stop();
+	}
+}
+
+	class MyTimerActionListener implements ActionListener 
+	{
+	  public void actionPerformed(ActionEvent e) 
+	  {
+		  GetWeatherConditions(null);
+		  //System.out.println("asdf");
+
+	  }
+	
+	public static void GetWeatherConditions(String[] args) 
 	{
 		ArrayList<String> weather = new ArrayList<String>();  // This will take the next 7 days' weather condition as an array.
 		// The following are the possible "wet conditions" that will tell if the sprinkler should or no go on.
@@ -45,9 +82,11 @@ public class XMLqueryParser
 				"Light Rain Freezing Drizzle", "Heavy Rain Freezing Drizzle", "Thunderstorm in Vicinity", "Thunderstorm in Vicinity Fog", 
 				"Thunderstorm in Vicinity Haze", "Light Rain", "Drizzle", "Light Drizzle", "Heavy Drizzle", "Light Rain Fog/Mist", 
 				"Drizzle Fog/Mist", "Light Drizzle Fog/Mist", "Heavy Drizzle Fog/Mist", "Light Rain Fog", "Drizzle Fog", "Light Drizzle Fog", 
-				"Heavy Drizzle FogRain", "Heavy Rain", "Rain Fog/Mist", "Heavy Rain Fog/Mist", "Rain Fog", "Heavy Rain Fog"};
+				"Heavy Drizzle FogRain", "Heavy Rain", "Rain Fog/Mist", "Heavy Rain Fog/Mist", "Rain Fog", "Heavy Rain Fog", 
+				"Slight Chance Rain then Rain Likely"};
 		
-		try {
+		try 
+		{
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			// This is the URL with the XML with Duxbury, Massachusett's weather information, which will be parsed.
@@ -57,27 +96,23 @@ public class XMLqueryParser
 			NodeList conditions = root.getElementsByTagName("weather-conditions");
 			// This output will be a week's worth of weather conditions for every 12 hours.
 										
-			for(int i=0; i<2; i++) /*conditions.getLength() would take all the 
-			available info, but I am only interested in the next 3 days; :. 6 12 hrs */
+			for(int i=0; i<3; i++) //conditions.getLength() would take all the 
+			//available info, but I am only interested in the next 3 days; :. 6 12 hrs 
 			{
 				Element condition = (Element)conditions.item(i); // The 2 last "weather-conditions" are irrelevant
 				System.out.printf("Condition " + (i+1) + ": %s%n", condition.getAttribute("weather-summary"));
 				weather.add(condition.getAttribute("weather-summary"));				
 			}
-			//System.out.println(weather);
-			
+
 			boolean rain = false;
-			//String index0 = weather[0];
-			for(String statement : wetConditions)
-			{
-			if(weather.equals(statement))
-				//System.out.println(weather.equals(statement));
-				rain = true;
-				System.out.println("It will rain sometime in the next week");
-				//break;
-			}
+			if ((Collections.disjoint(weather, Arrays.asList(wetConditions)) == false))	//(weather.equals(statement))
+			{	
+					rain = true;
+					System.out.println("It will rain sometime this week");
 					
+			}			
 		} 
+		
 		catch (ParserConfigurationException | SAXException | IOException e) 
 		{
 			// TODO Auto-generated catch block
@@ -86,3 +121,4 @@ public class XMLqueryParser
 	}
 	
 }
+	 
