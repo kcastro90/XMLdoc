@@ -1,8 +1,11 @@
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,44 +16,25 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Timer;
-
-
 
 public class XMLqueryParser 
 {
 	public static void main(String[] args) 
 	{
-		// ONE SECOND = 1000, one minute = 1000*60, one hr = 1000*60*60, one day = 1000*60*60*24
-		//
-		int second = 3000;
-		int minute = 3000*30;
-		Timer timer = new Timer(second, new MyTimerActionListener());
-
-	    timer.start();
-	    try 
-	    {
-	    	
-	    	Thread.sleep(minute);
-		} 
-	    catch (InterruptedException e) {}
-		    timer.stop();
+		//Change hour, minutes, second here
+		Calendar today = Calendar.getInstance();
+		today.set(Calendar.HOUR_OF_DAY, 13);
+		today.set(Calendar.MINUTE, 29);
+		today.set(Calendar.SECOND, 0);
+		// Every night at 3am run task
+		Timer timer = new Timer();
+		timer.schedule(new GetForecastDecision(), today.getTimeInMillis(), TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));	
 	}
 }
 
-	class MyTimerActionListener implements ActionListener 
-	{
-	  public void actionPerformed(ActionEvent e) 
-	  {
-		  GetWeatherConditions(null);
-		  //System.out.println("asdf");
-
-	  }
-	
-	public static void GetWeatherConditions(String[] args) 
+class GetForecastDecision extends TimerTask
+{
+	public static void run(String[] args) 
 	{
 		ArrayList<String> weather = new ArrayList<String>();  // This will take the next 7 days' weather condition as an array.
 		// The following are the possible "wet conditions" that will tell if the sprinkler should or no go on.
@@ -96,29 +80,44 @@ public class XMLqueryParser
 			NodeList conditions = root.getElementsByTagName("weather-conditions");
 			// This output will be a week's worth of weather conditions for every 12 hours.
 										
-			for(int i=0; i<3; i++) //conditions.getLength() would take all the 
-			//available info, but I am only interested in the next 3 days; :. 6 12 hrs 
-			{
-				Element condition = (Element)conditions.item(i); // The 2 last "weather-conditions" are irrelevant
-				System.out.printf("Condition " + (i+1) + ": %s%n", condition.getAttribute("weather-summary"));
-				weather.add(condition.getAttribute("weather-summary"));				
-			}
+			for(int i=0; i<2; i++) 
+				/*conditions.getLength() would take all the available info, but I am only interested in the next 24 hrs.*/ 
+				{
+					Element condition = (Element)conditions.item(i); 
+					System.out.printf("Condition " + (i+1) + ": %s%n", condition.getAttribute("weather-summary"));
+					weather.add(condition.getAttribute("weather-summary"));			
+				}
 
-			boolean rain = false;
-			if ((Collections.disjoint(weather, Arrays.asList(wetConditions)) == false))	//(weather.equals(statement))
-			{	
-					rain = true;
-					System.out.println("It will rain sometime this week");
-					
-			}			
-		} 
-		
-		catch (ParserConfigurationException | SAXException | IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				boolean rain = false;
+				if ((Collections.disjoint(weather, Arrays.asList(wetConditions)) == false))	//(weather.equals(statement))
+				{	
+						rain = true;
+				}	
+				ResultingRespose(rain);
+			} 
+			
+			catch (ParserConfigurationException | SAXException | IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		private static void ResultingRespose(boolean rain) {
+			if (rain == false)
+			{
+				System.out.println("The sprinkler will not turn for the next 24 hours");
+			}
+			else
+			{
+				System.out.println("The sprinkler system will now come on.");
+			}
+		}
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
 		}
 	}
-	
-}
 	 
