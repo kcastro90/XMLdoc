@@ -18,7 +18,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
-public class queryParser 
+public class XMLqueryParser 
 {
 	public static void main(String[] args) 
 	{
@@ -120,9 +120,9 @@ class GetForecastDecision extends TimerTask
 			}
 			if (yesterday == false && today == true)
 			{
-				System.out.println("The sprinkler system will not come on, it will rain today.");
+				System.out.println("The sprinkler system will not turn on, it will rain today.");
 			}
-			else // true && true, rain in both days
+			if (yesterday == true && today == true)
 			{
 				System.out.println("The sprinkler system will not come on.");
 			}
@@ -130,14 +130,18 @@ class GetForecastDecision extends TimerTask
 			// Update the arrays truth values
 			rainresult.setRainArray(today);
 		}
+}
 
-public class CheckRainHistory
+class CheckRainHistory
 {
-	/* Values will be realized to false since it the first run, there is no way of knowing
-			 * if there was any rain on the day prior to the first run. */
-	public Boolean [] rainHistory = {false, false}; 
+	/* Values will be realized to true and false for the first run,
+	 * so in the first run the program will only rely on the current 
+	 * day's result logically. So there is a possibility of the land 
+	 * being watered after a day of rain, but at least it will not 
+	 * be dry for two or three days in a row after the first run.*/
+	private Boolean [] rainHistory = {true, false}; 
 			
-	private void setRainArray(Boolean result)
+	public void setRainArray(Boolean result)
 	{
 		Boolean copyresult = rainHistory[0]; 
 		/* Copy the second value which is today's result, 
@@ -152,8 +156,6 @@ public class CheckRainHistory
 	{	
 		return rainHistory;				
 	}
-			
-}
 }
 
 
